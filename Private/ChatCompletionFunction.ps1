@@ -76,22 +76,22 @@ function New-ChatCompletionFunctionFromPSCommand {
     $CommandHelp = Get-Help $CommandInfo -ErrorAction Ignore
 
     if ($ParameterSetName) {
-        $TargetParameterSet = $CommandInfo.ParameterSets | ? { $_.Name -eq $ParameterSetName }
+        $TargetParameterSet = $CommandInfo.ParameterSets | Where-Object Name -eq $ParameterSetName
         if (-not $TargetParameterSet) {
             Write-Error "$ParameterSetName does not exist."
             return
         }
     }
     else {
-        $TargetParameterSet = $CommandInfo.ParameterSets | ? { $_.IsDefault }
+        $TargetParameterSet = $CommandInfo.ParameterSets | Where-Object IsDefault
         if (-not $TargetParameterSet) {
             $TargetParameterSet = $CommandInfo.ParameterSets[0]
         }
     }
 
-    $TargetParameters = $TargetParameterSet.Parameters | ? { $_.Name -notin $ExcludeParamNames }
+    $TargetParameters = $TargetParameterSet.Parameters | Where-Object Name -notin $ExcludeParamNames
     if ($IncludeParameters.Count -gt 0) {
-        $TargetParameters = $TargetParameters | ? { $_.Name -in $IncludeParameters }
+        $TargetParameters = $TargetParameters | Where-Object Name -in $IncludeParameters
     }
 
     $FunctionDefinition.Add('name', $CommandInfo.Name)
@@ -116,7 +116,7 @@ function New-ChatCompletionFunctionFromPSCommand {
 
         $propHash = ParseParameterType($param.ParameterType)
 
-        $helpmsg = (($CommandHelp.parameters.parameter | ? { $_.name -eq $pName }).description.text -join "`n") -replace "`r", ''
+        $helpmsg = (($CommandHelp.parameters.parameter | Where-Object name -eq $pName).description.text -join "`n") -replace "`r", ''
         if ([string]::IsNullOrWhiteSpace($helpmsg)) {
             $helpmsg = [string]$param.HelpMessage
         }

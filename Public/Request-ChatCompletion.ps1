@@ -572,7 +572,7 @@ function Request-ChatCompletion {
         }
         $LastUserMessage = ($Messages.Where({ $_.role -eq 'user' })[-1].content)
         if ($LastUserMessage -isnot [string]) {
-            $LastUserMessage = [string]($LastUserMessage | ? { $_.type -eq 'text' } | select -Last 1).text
+            $LastUserMessage = [string]($LastUserMessage | Where-Object type -eq 'text' | Select-Object -Last 1).text
         }
         $Response | Add-Member -MemberType NoteProperty -Name 'Message' -Value $LastUserMessage
         $Response | Add-Member -MemberType NoteProperty -Name 'Answer' -Value ([string[]]$Response.choices.message.content)
